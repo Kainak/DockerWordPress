@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  wordpress:
+    image: wordpress:latest    
+    build: .
+    container_name: wordpress
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8080:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_REDIS_PORT: 6379
+    volumes:
+      - ./config/wp_php.ini:/usr/local/etc/php/conf.d/conf.ini
+      - ./wp-app:/var/www/html 
+    networks:
+      - rede
+
+  db:
+    image: mysql:5.7
+    container_name: mysqlAgora_vai
+    environment:
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
+      MYSQL_USER: ${WORDPRESS_DB_USER}
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./db_data:/var/lib/mysql
+    networks:
+      - rede
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    depends_on:
+      - db
+    ports:
+      - "9092:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
+      MYSQL_USER: ${WORDPRESS_DB_USER}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - rede
+    volumes:
+      - ./config/pma_php.ini:/usr/local/etc/php/conf.d/conf.ini
+      - ./config/pma_config.php:/etc/phpmyadmin/config.user.inc.php
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    networks:
+      - rede
+
+  prometheus:
+    depends_on:
+      - db
+    image: prom/prometheus:latest
+    networks:
+      - rede
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+
+  # redis_exporter:
+  #   depends_on:
+  #     - db
+  #   image: oliver006/redis_exporter:latest
+  #   networks:
+  #     - rede
+  #   environment:
+  #     REDIS_ADDR: redis:6379
+  #   ports:
+  #     - "9121:9121"
+
+volumes:
+  wordpress_data:
+  db_data:
+  redis_data:
+  prometheus_data:
+    
+networks:
+  rede:
