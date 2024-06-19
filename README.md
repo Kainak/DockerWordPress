@@ -69,7 +69,7 @@ define('WP_REDIS_PORT', '6379');`
 
 # Prontinho!
 
-- Acesse `http://localhost:8080/` - Vá na aba lateral equerda-> Plugins -> Botão Adicionar Plugin -> Perquise por "Redis Object Cache" e clique em "Instalar Agora" na primeira opção da pesquisa, e em seguida "Ativar"
+- Acesse http://localhost:8080/ - Vá na aba lateral equerda-> Plugins -> Botão Adicionar Plugin -> Perquise por "Redis Object Cache" e clique em "Instalar Agora" na primeira opção da pesquisa, e em seguida "Ativar"
 - Acesso ao banco de dados: http://localhost:9092/index.php?route=/
   > A senha é a que foi criada no arquivo .env.
 - Acesso ao Prometheus: http://localhost:9090/
